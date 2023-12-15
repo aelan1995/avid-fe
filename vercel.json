@@ -1,7 +1,7 @@
 {
     "headers": [
       {
-        "source": "http://64.227.105.223/api/contract",
+        "source": "/api/contract",
         "headers": [
           { "key": "Access-Control-Allow-Credentials", "value": "true" },
           { "key": "Access-Control-Allow-Origin", "value": "*" },
