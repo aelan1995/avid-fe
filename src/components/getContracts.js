@@ -13,7 +13,7 @@ export function Contracts() {
   const [contract, getContracts] = useState([])
 
   const fetchContracts = () => {
-    fetch("http://64.227.105.223/api/contract?page=1")
+    fetch("http://64.227.105.223/api/contract")
       .then(response => {
         return response.json()
       })
