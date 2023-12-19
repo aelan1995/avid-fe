@@ -125,27 +125,9 @@ const Contracts = () => {
                 </Typography>
             </div>
           </div>
-          <label htmlFor="search">
-            Search by Task:
-            <input
-              id="search"
-              type="text"
-              value={search}
-              onChange={handleSearch}
-            />
-          </label>
-          <label htmlFor="filter">
-            <input
-              id="filter"
-              type="checkbox"
-              checked={filter}
-              onChange={handleFilter}
-            />
-            Only "Ask HN"
-          </label>
         </CardHeader>
         <CardBody className="overflow-scroll px-0">
-            <Table data={data} pagination={pagination} className="w-full min-w-max table-auto text-left">
+            <Table data={data} pagination={pagination} className="w-full min-w-max table-auto mx-auto">
               {(tableList) => (
                 <>
                   <Header>
@@ -168,7 +150,7 @@ const Contracts = () => {
                     ))}
                   </Body>
                   <Pagination
-                  className="pagination-bar"
+                  className="pagination-bar p-24"
                   currentPage={data.currentPages}
                   totalCount={data.totalPages}
                   pageSize={10}
