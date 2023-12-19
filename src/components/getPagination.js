@@ -1,55 +1,75 @@
-import React from "react";
-import { Button, IconButton } from "@material-tailwind/react";
-import { ArrowRightIcon, ArrowLeftIcon } from "@heroicons/react/24/outline";
- 
-export function DefaultPagination() {
-  const [active, setActive] = React.useState(1);
- 
-  const getItemProps = (index) =>
-    ({
-      variant: active === index ? "filled" : "text",
-      color: "gray",
-      onClick: () => setActive(index),
-    });
- 
-  const next = () => {
-    if (active === 5) return;
- 
-    setActive(active + 1);
+import React from 'react';
+import classnames from 'classnames';
+import { usePagination, DOTS } from './usePagination';
+import './pagination.css';
+const Pagination = props => {
+  const {
+    onPageChange,
+    totalCount,
+    siblingCount = 1,
+    currentPage,
+    pageSize,
+    className
+  } = props;
+
+  const paginationRange = usePagination({
+    currentPage,
+    totalCount,
+    siblingCount,
+    pageSize
+  });
+
+  if (currentPage === 0 || paginationRange.length < 2) {
+    return null;
+  }
+
+  const onNext = () => {
+    onPageChange(currentPage + 1);
   };
- 
-  const prev = () => {
-    if (active === 1) return;
- 
-    setActive(active - 1);
+
+  const onPrevious = () => {
+    onPageChange(currentPage - 1);
   };
- 
+
+  let lastPage = paginationRange[paginationRange.length - 1];
   return (
-    <div className="flex items-center gap-4">
-      <Button
-        variant="text"
-        className="flex items-center gap-2"
-        onClick={prev}
-        disabled={active === 1}
+    <ul
+      className={classnames('pagination-container', { [className]: className })}
+    >
+      <li
+        className={classnames('pagination-item', {
+          disabled: currentPage === 1
+        })}
+        onClick={onPrevious}
       >
-        <ArrowLeftIcon strokeWidth={2} className="h-4 w-4" /> Previous
-      </Button>
-      <div className="flex items-center gap-2">
-        <IconButton {...getItemProps(1)}>1</IconButton>
-        <IconButton {...getItemProps(2)}>2</IconButton>
-        <IconButton {...getItemProps(3)}>3</IconButton>
-        <IconButton {...getItemProps(4)}>4</IconButton>
-        <IconButton {...getItemProps(5)}>5</IconButton>
-      </div>
-      <Button
-        variant="text"
-        className="flex items-center gap-2"
-        onClick={next}
-        disabled={active === 5}
+        <div className="arrow left" />
+      </li>
+      {paginationRange.map(pageNumber => {
+        if (pageNumber === DOTS) {
+          return <li className="pagination-item dots">&#8230;</li>;
+        }
+
+        return (
+          <li
+            className={classnames('pagination-item', {
+              selected: pageNumber === currentPage
+            })}
+            onClick={() => onPageChange(pageNumber)}
+          >
+            {pageNumber}
+          </li>
+        );
+      })}
+      <li
+        className={classnames('pagination-item', {
+          disabled: currentPage === lastPage
+        })}
+        onClick={onNext}
       >
-        Next
-        <ArrowRightIcon strokeWidth={2} className="h-4 w-4" />
-      </Button>
-    </div>
+        <div className="arrow right" />
+      </li>
+    </ul>
   );
-}
+};
+
+export { Pagination };

@@ -1,98 +1,189 @@
 "use client";
-import { Card, CardHeader, CardBody, CardFooter, Typography, Button  } from "./providers.js";
+import { Card, CardHeader, CardBody, Typography } from "./providers.js";
 
-import React, { useEffect, useState } from "react";
+import * as React from 'react';
+import axios from 'axios';
+import { Pagination } from "./getPagination.js";
 
-import { DefaultPagination } from "./getPagination.js";
+import {
+  Table,
+  Header,
+  HeaderRow,
+  HeaderCell,
+  Body,
+  Row,
+  Cell,
+} from '@table-library/react-table-library/table';
+import { usePagination } from '@table-library/react-table-library/pagination';
+
+const BASE_URL = 'https://demoapi.jcadevdomain.com/api/contract';
+
+const INITIAL_PARAMS = {
+  search: 'react',
+  filter: false,
+  page: 0,
+};
 
 
-const TABLE_HEAD = ["Contract Key","Contract Number","Contract Type","Contract Sub Type"];
+const Contracts = () => {
 
-export function Contracts() {
+  const [search, setSearch] = React.useState('react');
 
-  const [contract, getContracts] = useState([])
+  const [filter, setFilter] = React.useState(INITIAL_PARAMS.filter);
 
-  const fetchContracts = () => {
-    fetch("https://demoapi.jcadevdomain.com/api/contract")
-      .then(response => {
-        return response.json()
-      })
-      .then(data => {
-        getContracts(data.data)
-      })
+  const handleSearch = (event) => {
+     setSearch(event.target.value);
+  };
+
+  const handleFilter = (event) => {
+    setFilter(event.target.checked);
+  };
+
+  const [data, setData] = React.useState({
+    nodes: [],
+    totalPages: 0,
+    currentPages: 0,
+  });
+
+  const pagination = usePagination(
+    data,
+    {
+      state: {
+        page: INITIAL_PARAMS.page,
+      },
+      onChange: onPaginationChange,
+    },
+    {
+      isServer: true,
+    }
+  );
+
+  const timeout = React.useRef();
+  function onSearchChange(action, state) {
+    if (timeout.current) clearTimeout(timeout.current);
+
+    timeout.current = setTimeout(
+      () =>
+        fetchData({
+          search: state.search,
+          filter,
+          page: pagination.state.page,
+        }),
+      500
+    );
   }
 
-  useEffect(() => {
-    fetchContracts()
-  }, [])
+  function onFilterChange(action, state) {
+    fetchData({
+      search,
+      filter: state.filter,
+      page: pagination.state.page,
+    });
+  }
+
+  function onPaginationChange(action, state) {
+    fetchData({
+      search,
+      filter,
+      page: state.page,
+    });
+  }
+
+  const fetchData = React.useCallback(async (params) => {
+    let url = `${BASE_URL}?query=${params.search}&page=${params.page}`;
+
+    if (params.filter) {
+      url = `${url}&tags=ask_hn`;
+    }
+
+    const result = await axios.get(url);
+
+    setData({
+      nodes: result.data.data,
+      totalPages: result.data.total,
+      currentPages: result.data.current_page,
+    });
+  }, []);
+
+  React.useEffect(() => {
+    fetchData({
+      search: INITIAL_PARAMS.search,
+      filter: INITIAL_PARAMS.filter,
+      page: INITIAL_PARAMS.page,
+    });
+  }, [fetchData]);
+
 
   return (
-    <Card className="overflow-scroll ">
-       <CardHeader floated={false} shadow={false} className="rounded-none">
+    <>
+      <Card className="overflow-scroll ">
+        <CardHeader floated={false} shadow={false} className="rounded-none">
           <div className="mb-8 flex items-center justify-between gap-8">
             <div>
               <Typography variant="h5" color="blue-gray">
                 Contracts list
-              </Typography>
+                </Typography>
             </div>
           </div>
-       </CardHeader>
-       <CardBody className="overflow-scroll px-0">
-          <table className="w-full min-w-max table-auto text-left">
-            <thead>
-              <tr>
-                {TABLE_HEAD.map((head) => (
-                  <th key={head} className="border-b border-blue-gray-100 bg-blue-gray-50 p-4">
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="font-normal leading-none opacity-70"
-                    >
-                      {head}
-                    </Typography>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>        
-            {contract.map(index => {
-                const isLast = index === contract.length - 1;
-                const classes = isLast ? "p-4" : "p-4 border-b border-blue-gray-50";
-                return (
-                  <tr key={index.id}>
-                      <td className={`${classes} bg-blue-gray-50/50`}>
-                        <Typography variant="small" color="blue-gray" className="font-normal">
-                          {index.contract_key}
-                        </Typography>
-                      </td>
-                      <td className={`${classes} bg-blue-gray-50/50`}>
-                        <Typography variant="small" color="blue-gray" className="font-normal">
-                          {index.contract_no}
-                        </Typography>
-                      </td>
-                      <td className={`${classes} bg-blue-gray-50/50`}>
-                        <Typography variant="small" color="blue-gray" className="font-normal">
-                          {index.contract_type}
-                        </Typography>
-                      </td>
-                      <td className={`${classes} bg-blue-gray-50/50`}>
-                        <Typography variant="small" color="blue-gray" className="font-normal">
-                          {index.contract_sub_type}
-                        </Typography>
-                      </td>
-                  </tr>                  
-                )             
-              })}
-            </tbody>
-          </table>
-      </CardBody>
-      <CardFooter className="flex items-center justify-center border-t border-blue-gray-50">
-        <DefaultPagination />
-      </CardFooter>
-      
-    </Card>
-  )
-}
+          <label htmlFor="search">
+            Search by Task:
+            <input
+              id="search"
+              type="text"
+              value={search}
+              onChange={handleSearch}
+            />
+          </label>
+          <label htmlFor="filter">
+            <input
+              id="filter"
+              type="checkbox"
+              checked={filter}
+              onChange={handleFilter}
+            />
+            Only "Ask HN"
+          </label>
+        </CardHeader>
+        <CardBody className="overflow-scroll px-0">
+            <Table data={data} pagination={pagination} className="w-full min-w-max table-auto text-left">
+              {(tableList) => (
+                <>
+                  <Header>
+                    <HeaderRow>
+                      <HeaderCell>Contract Key</HeaderCell>
+                      <HeaderCell>Contract No</HeaderCell>
+                      <HeaderCell>Contract Type</HeaderCell>
+                      <HeaderCell>Contract Sub Type</HeaderCell>
+                    </HeaderRow>
+                  </Header>
+
+                  <Body>
+                    {tableList.map((item) => (
+                      <Row key={item.contract_key} item={item} className="border-b border-blue-gray-100 bg-blue-gray-50 p-4">
+                        <Cell>{item.contract_key}</Cell>
+                        <Cell>{item.contract_no}</Cell>
+                        <Cell>{item.contract_type}</Cell>
+                        <Cell>{item.contract_sub_type}</Cell>
+                      </Row>
+                    ))}
+                  </Body>
+                  <Pagination
+                  className="pagination-bar"
+                  currentPage={data.currentPages}
+                  totalCount={data.totalPages}
+                  pageSize={10}
+                  onPageChange={page => pagination.fns.onSetPage(page)}/>
+                </>
+              )}
+          </Table>
+        </CardBody>
+      </Card>
+   </>
+  );
+};
+
+export { Contracts }
+
 
 
 
