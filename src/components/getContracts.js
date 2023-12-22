@@ -121,7 +121,7 @@ const Contracts = () => {
           <div className="mb-8 flex items-center justify-between gap-8">
             <div>
               <Typography variant="h5" color="blue-gray">
-                Contracts list
+                Adrian WFH
                 </Typography>
             </div>
           </div>
@@ -153,7 +153,7 @@ const Contracts = () => {
                   className="pagination-bar p-24"
                   currentPage={data.currentPages}
                   totalCount={data.totalPages}
-                  pageSize={10}
+                  pageSize={1000}
                   onPageChange={page => pagination.fns.onSetPage(page)}/>
                 </>
               )}
