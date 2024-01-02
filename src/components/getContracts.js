@@ -1,5 +1,7 @@
 "use client";
 import { Card, CardHeader, CardBody, Typography } from "./providers.js";
+import { SBFunctions }  from "/src/components/getSampleBuiltinFunctions.js";
+
 
 import * as React from 'react';
 import axios from 'axios';
@@ -89,6 +91,7 @@ const Contracts = () => {
     });
   }
 
+
   const fetchData = React.useCallback(async (params) => {
     let url = `${BASE_URL}?query=${params.search}&page=${params.page}`;
 
@@ -121,7 +124,7 @@ const Contracts = () => {
           <div className="mb-8 flex items-center justify-between gap-8">
             <div>
               <Typography variant="h5" color="blue-gray">
-                Adrian WFH
+                Allan Pogi WFH ule
                 </Typography>
             </div>
           </div>
@@ -157,7 +160,8 @@ const Contracts = () => {
                   onPageChange={page => pagination.fns.onSetPage(page)}/>
                 </>
               )}
-          </Table>
+            </Table>
+            <SBFunctions/>
         </CardBody>
       </Card>
    </>
