@@ -16,7 +16,7 @@ const SBFunctions = () => {
           <div className="mb-8 flex items-center justify-between gap-8">
             <div>
               <Typography variant="h5" color="blue-gray">
-                Built In Functions Test Test Again
+                Built In Functions Test Test Test Test Test Test Again
                 </Typography>
             </div>
           </div>
